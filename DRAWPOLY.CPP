@@ -216,6 +216,19 @@ void drawEMBMPoly(Poly *poly) {
   float v1z = 1.f / poly->v[1].p.z;
   float v2z = 1.f / poly->v[2].p.z;
 
+  float px0 = poly->v[0].p.x * v0z;
+  float py0 = poly->v[0].p.y * v0z;
+  float pz0 = poly->v[0].p.z * v0z;
+
+  float px1 = poly->v[1].p.x * v1z;
+  float py1 = poly->v[1].p.y * v1z;
+  float pz1 = poly->v[1].p.z * v1z;
+
+  float px2 = poly->v[2].p.x * v2z;
+  float py2 = poly->v[2].p.y * v2z;
+  float pz2 = poly->v[2].p.z * v2z;
+
+
   float nx0 = poly->v[0].n.x * v0z;
   float ny0 = poly->v[0].n.y * v0z;
   float nz0 = poly->v[0].n.z * v0z;
@@ -258,8 +271,17 @@ void drawEMBMPoly(Poly *poly) {
       n.z = __BARY0__(nz0)+__BARY1__(nz1)+__BARY2__(nz2);
       n.normalize();
       n = transform3x3(n,envyMatrix);
-      int u = n.x/(n.z+2.0)*textureWidth/2+textureWidth/2;
-      int v = n.y/(n.z+2.0)*textureHeight/2+textureHeight/2;
+      Vector p;
+      p.x = __BARY0__(px0)+__BARY1__(px1)+__BARY2__(px2);
+      p.y = __BARY0__(py0)+__BARY1__(py1)+__BARY2__(py2);
+      p.z = __BARY0__(pz0)+__BARY1__(pz1)+__BARY2__(pz2);
+      p.normalize();
+      Vector i;
+      i.set(p);
+      n.mul(2*dot(i,n));
+      i.sub(n);
+      int u = i.x/(i.z+2.0)*textureWidth/2+textureWidth/2;
+      int v = i.y/(i.z+2.0)*textureHeight/2+textureHeight/2;
       float s = 1.0;
       u += ((int)(embm & 255)-128)*s;
       v += (((int)(embm>>8) & 255)-128)*s;
